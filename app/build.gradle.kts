@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -56,4 +58,18 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
+    //retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    //Gson converter
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    //Glide
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    //swipe to refresh
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    //likeButton
+    implementation ("com.google.android.material:material:1.6.0")
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-runtime:2.6.1")
 }
