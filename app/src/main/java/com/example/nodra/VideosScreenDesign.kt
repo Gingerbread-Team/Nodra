@@ -1,5 +1,5 @@
 package com.example.nodra
-//
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,39 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-//
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.nodra.ui.theme.NodraTheme
-
-class VideosActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            NodraTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    VideosScreens(modifier = Modifier.padding(innerPadding))
-                }
-            }
-        }
-    }
-
-}
-
-
-
 
 @Composable
-fun VideosScreens(viewModel: RedditViewModel = viewModel(),modifier: Modifier= Modifier) {
+fun VideosScreen(viewModel: RedditViewModel = viewModel()) {
     val videoPosts by viewModel.videoPosts.collectAsState()
     val isVideoLoading by viewModel.isVideoLoading.collectAsState()
     val videoError by viewModel.videoError.collectAsState()
@@ -81,6 +51,3 @@ fun VideosScreens(viewModel: RedditViewModel = viewModel(),modifier: Modifier= M
         }
     }
 }
-
-
-

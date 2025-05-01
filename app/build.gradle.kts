@@ -51,6 +51,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -71,11 +73,26 @@ dependencies {
     //likeButton
     implementation ("com.google.android.material:material:1.6.0")
     ksp("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-runtime:2.7.1")
 
     implementation("androidx.navigation:navigation-compose:2.8.9")
-    implementation ("androidx.compose.material:material-icons-extended:1.6.0") // Acc icon
+    implementation ("androidx.compose.material:material-icons-extended:1.7.8")// Acc icon
 
+    // Retrofit for networking
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    // Kotlin Coroutines for asynchronous operations
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    // Use the latest stable version
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 
+    // Coil for image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    // Moshi for JSON parsing
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    implementation("androidx.media3:media3-ui:1.3.1") // If you've migrated fully to media3
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation ("androidx.navigation:navigation-compose:2.7.5")
 
 }

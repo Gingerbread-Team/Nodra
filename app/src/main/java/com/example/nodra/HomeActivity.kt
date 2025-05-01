@@ -1,5 +1,6 @@
 package com.example.nodra
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -35,6 +38,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.rounded.Accessibility
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -43,6 +47,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,10 +57,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.example.nodra.ui.theme.NodraTheme
 
@@ -137,10 +144,12 @@ class HomeActivity : ComponentActivity() {
 
     @Composable
     fun BottomNavigationBar(selectedItem: Int, onItemSelected: (Int) -> Unit) {
+        val context = LocalContext.current // 👈 الحصول على الـ Context
+
         val items = listOf(
             BottomNavItem("Home", Icons.Default.Home),
             BottomNavItem("Video", Icons.Default.PlayArrow),
-            BottomNavItem("Accessibility", Icons.Rounded.Accessibility),//nedd acc icon
+            BottomNavItem("Accessibility", Icons.Rounded.Accessibility),
             BottomNavItem("Notification", Icons.Default.Notifications),
             BottomNavItem("Profile", Icons.Default.Person)
         )
@@ -161,7 +170,15 @@ class HomeActivity : ComponentActivity() {
                         Text(text = item.title, fontSize = 10.sp)
                     },
                     selected = selectedItem == index,
-                    onClick = { onItemSelected(index) },
+                    onClick = {
+                        onItemSelected(index)
+
+                        // إذا كان الزر هو "Video"، ننتقل إلى VideoActivity
+                        if (index == 1) { // "Video" هو التبويب رقم 1 في الـ BottomNavBar
+                            val intent = Intent(context, VideosActivity::class.java)
+                            context.startActivity(intent)
+                        }
+                    },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color(0xFF1A2C50),
                         unselectedIconColor = Color.Gray,
@@ -169,8 +186,6 @@ class HomeActivity : ComponentActivity() {
                     )
                 )
             }
-
-
         }
     }
 
@@ -236,7 +251,10 @@ class HomeActivity : ComponentActivity() {
     @Composable
     fun MainScreen(modifier: Modifier = Modifier) {
         var selectedTab by remember { mutableStateOf(0) }
-
+        val viewModel: RedditViewModel = viewModel()
+        val posts by viewModel.posts.collectAsState()
+        val isLoading by viewModel.isLoading.collectAsState()
+        val error by viewModel.error.collectAsState()
         Scaffold(
             bottomBar = {
                 BottomNavigationBar(selectedItem = selectedTab) {
@@ -244,16 +262,57 @@ class HomeActivity : ComponentActivity() {
                 }
             }
         ) { innerPadding ->
-            LazyColumn(
+            LazyColumn (
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
-
             ) {
+                // عرض باقي المحتويات هنا
                 item {
                     HeaderSection()
                 }
-                item { StoriesSection() }
+                item {
+                    StoriesSection()
+                }
+                    when {
+                        isLoading -> {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(innerPadding),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+
+                        }
+
+                        error != null -> {
+                            item{
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(innerPadding),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(text = error!!)
+                                }
+                            }
+
+                        }
+
+                        else -> {
+
+                                items(posts) { post ->
+                                    RedditPostItem(post = post)
+                                }
+
+                        }
+                    }
+
+
 
             }
         }
