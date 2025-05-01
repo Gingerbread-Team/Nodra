@@ -1,5 +1,6 @@
 package com.example.nodra
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -137,10 +140,12 @@ class HomeActivity : ComponentActivity() {
 
     @Composable
     fun BottomNavigationBar(selectedItem: Int, onItemSelected: (Int) -> Unit) {
+        val context = LocalContext.current // 👈 الحصول على الـ Context
+
         val items = listOf(
             BottomNavItem("Home", Icons.Default.Home),
             BottomNavItem("Video", Icons.Default.PlayArrow),
-            BottomNavItem("Accessibility", Icons.Rounded.Accessibility),//nedd acc icon
+            BottomNavItem("Accessibility", Icons.Rounded.Accessibility),
             BottomNavItem("Notification", Icons.Default.Notifications),
             BottomNavItem("Profile", Icons.Default.Person)
         )
@@ -161,7 +166,15 @@ class HomeActivity : ComponentActivity() {
                         Text(text = item.title, fontSize = 10.sp)
                     },
                     selected = selectedItem == index,
-                    onClick = { onItemSelected(index) },
+                    onClick = {
+                        onItemSelected(index)
+
+                        // إذا كان الزر هو "Video"، ننتقل إلى VideoActivity
+                        if (index == 1) { // "Video" هو التبويب رقم 1 في الـ BottomNavBar
+                            val intent = Intent(context, VideosActivity::class.java)
+                            context.startActivity(intent)
+                        }
+                    },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color(0xFF1A2C50),
                         unselectedIconColor = Color.Gray,
@@ -169,8 +182,6 @@ class HomeActivity : ComponentActivity() {
                     )
                 )
             }
-
-
         }
     }
 
@@ -244,17 +255,15 @@ class HomeActivity : ComponentActivity() {
                 }
             }
         ) { innerPadding ->
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
-
             ) {
-                item {
-                    HeaderSection()
-                }
-                item { StoriesSection() }
-
+                // عرض باقي المحتويات هنا
+                HeaderSection()
+                StoriesSection()
+                RedditFeedScreen()
             }
         }
     }

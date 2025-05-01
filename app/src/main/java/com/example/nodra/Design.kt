@@ -48,7 +48,7 @@ fun RedditPostItem(post: RedditPost) {
             ) {
                 // User Icon
                 Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_account_circle),
+                    imageVector = ImageVector.vectorResource(id = R.drawable.baseline_account_circle_24),
                     contentDescription = "User Avatar",
                     modifier = Modifier.size(24.dp)
                 )

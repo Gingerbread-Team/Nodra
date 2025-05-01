@@ -87,5 +87,10 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
 // Moshi for JSON parsing
     implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    implementation("androidx.media3:media3-ui:1.3.1") // If you've migrated fully to media3
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation ("androidx.navigation:navigation-compose:2.7.5")
 
 }
