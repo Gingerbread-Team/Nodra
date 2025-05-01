@@ -74,8 +74,18 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
 
     implementation("androidx.navigation:navigation-compose:2.8.9")
-    implementation ("androidx.compose.material:material-icons-extended:1.6.0") // Acc icon
+    implementation ("androidx.compose.material:material-icons-extended:1.6.0")// Acc icon
 
+    // Retrofit for networking
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    // Kotlin Coroutines for asynchronous operations
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    // Use the latest stable version
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 
+    // Coil for image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
+// Moshi for JSON parsing
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
 
 }
