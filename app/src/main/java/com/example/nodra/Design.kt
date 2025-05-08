@@ -5,22 +5,32 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Comment
+import androidx.compose.material.icons.filled.Comment
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
@@ -35,86 +45,101 @@ fun RedditPostItem(post: RedditPost) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+            .padding(vertical = 8.dp, horizontal = 12.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
-                .padding(5.dp)
-                .background(color = Color.White)
+                .padding(10.dp)
         ) {
+            // Header (Profile + Author + Time/More)
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // User Icon
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.baseline_account_circle_24),
                     contentDescription = "User Avatar",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape),
+                    tint = Color.Gray
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-
-                // Author
-                Text(
-                    text = post.author,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.weight(1f) // Take remaining space
-                )
-
-                // More Options
-                Text(
-                    text = "...",
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = post.author,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                    Text(
+                        text = "Just now", //
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "More Options"
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Title
-            Text(text = post.title, style = MaterialTheme.typography.titleMedium)
-
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Selftext
-            post.selftext?.let {
+            // Title or Selftext
+            post.title.takeIf { it.isNotBlank() }?.let {
                 Text(text = it, style = MaterialTheme.typography.bodyLarge)
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
+            }
+
+            post.selftext?.takeIf { it.isNotBlank() }?.let {
+                Text(text = it, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(6.dp))
             }
 
             // Image
             post.imageUrl?.let { url ->
                 SubredditImage(url = url)
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
             }
 
             // Video
             post.videoUrl?.let { url ->
                 SubredditVideo(url = url)
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
             }
-            // Like, Comment, Share Buttons
+
+            Divider()
+
+            // Buttons Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Like",
-                    modifier = Modifier.clickable {  }
-                )
-                Text(
-                    text = "Comment",
-                    modifier = Modifier.clickable { }
-                )
-                Text(
-                    text = "Share",
-                    modifier = Modifier.clickable {  }
-                )
+                PostActionButton(icon = Icons.Default.ThumbUp, label = "Like")
+                PostActionButton(icon = Icons.Default.Comment, label = "Comment")
+                PostActionButton(icon = Icons.Default.Share, label = "Share")
             }
         }
     }
 }
+
+@Composable
+fun PostActionButton(icon: ImageVector, label: String) {
+    Row(
+        modifier = Modifier
+            .clickable { }
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(imageVector = icon, contentDescription = label, modifier = Modifier.size(18.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(text = label, style = MaterialTheme.typography.bodySmall)
+    }
+}
+
 
 @Composable
 fun SubredditImage(url: String) {

@@ -1,19 +1,27 @@
 package com.example.nodra
 
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.compose.material3.LinearProgressIndicator
+
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,6 +55,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,15 +66,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.example.nodra.ui.theme.NodraTheme
+import kotlinx.coroutines.delay
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -124,12 +139,13 @@ class HomeActivity : ComponentActivity() {
                     .background(Color(0xFFF0F0F0))
                     .padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.images),
-                    contentDescription = "Profile",
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.baseline_account_circle_24),
+                    contentDescription = "User Avatar",
                     modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
+                        .size(40.dp)
+                        .clip(CircleShape),
+                    tint = Color.Gray
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -144,7 +160,7 @@ class HomeActivity : ComponentActivity() {
 
     @Composable
     fun BottomNavigationBar(selectedItem: Int, onItemSelected: (Int) -> Unit) {
-        val context = LocalContext.current // 👈 الحصول على الـ Context
+        val context = LocalContext.current //
 
         val items = listOf(
             BottomNavItem("Home", Icons.Default.Home),
@@ -173,8 +189,8 @@ class HomeActivity : ComponentActivity() {
                     onClick = {
                         onItemSelected(index)
 
-                        // إذا كان الزر هو "Video"، ننتقل إلى VideoActivity
-                        if (index == 1) { // "Video" هو التبويب رقم 1 في الـ BottomNavBar
+
+                        if (index == 1) {
                             val intent = Intent(context, VideosActivity::class.java)
                             context.startActivity(intent)
                         }
@@ -192,7 +208,7 @@ class HomeActivity : ComponentActivity() {
     @Composable
     fun StoriesSection() {
         val stories: List<Int?> = listOf(
-            null, // First item for the "+" button
+            null,
             R.drawable.arthur,
             R.drawable.james,
             R.drawable.kratos,
@@ -201,17 +217,33 @@ class HomeActivity : ComponentActivity() {
             R.drawable.tiger
         )
 
+        val actualStories = stories.filterNotNull() // استبعد null
+        var showStories by remember { mutableStateOf(false) }
+        var startIndex by remember { mutableStateOf(0) }
+
+        if (showStories) {
+            FullscreenStoriesViewer(
+                storyImages = actualStories,
+                startIndex = startIndex,
+                onDismiss = { showStories = false }
+            )
+        }
+
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = 16.dp, vertical = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             itemsIndexed(stories) { index, item ->
                 if (item == null) {
                     AddStoryCard()
                 } else {
-                    StoryImageCard(imageRes = item)
+                    // لازم نستخدم index - 1 علشان actualStories مبتحسبش null
+                    StoryImageCard(imageRes = item) {
+                        startIndex = index - 1 // اطرح 1 علشان null أول عنصر
+                        showStories = true
+                    }
                 }
             }
         }
@@ -221,7 +253,7 @@ class HomeActivity : ComponentActivity() {
     fun AddStoryCard() {
         Box(
             modifier = Modifier
-                .size(100.dp)
+                .size(width = 120.dp, height = 180.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.LightGray),
             contentAlignment = Alignment.Center
@@ -236,16 +268,66 @@ class HomeActivity : ComponentActivity() {
     }
 
     @Composable
-    fun StoryImageCard(@DrawableRes imageRes: Int) {
+    fun StoryImageCard(@DrawableRes imageRes: Int, onClick: () -> Unit) {
         Image(
             painter = painterResource(id = imageRes),
             contentDescription = "Story Image",
             modifier = Modifier
-                .size(100.dp)
-                .clip(RoundedCornerShape(16.dp)),
+                .size(width = 120.dp, height = 180.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .clickable { onClick() },
             contentScale = ContentScale.Crop
         )
     }
+
+    @Composable
+    fun FullscreenStoriesViewer(
+        @DrawableRes storyImages: List<Int>,
+        startIndex: Int = 0,
+        onDismiss: () -> Unit
+    ) {
+        var currentIndex by remember { mutableStateOf(startIndex) }
+        val totalStories = storyImages.size
+        val systemUiController = rememberSystemUiController()
+
+        DisposableEffect(Unit) {
+            systemUiController.isSystemBarsVisible = false
+            onDispose {
+                systemUiController.isSystemBarsVisible = true
+            }
+        }
+
+        LaunchedEffect(currentIndex) {
+            if (currentIndex < totalStories) {
+                delay(2500)
+                currentIndex++
+            } else {
+                onDismiss()
+            }
+        }
+
+        if (currentIndex < totalStories) {
+            Dialog(onDismissRequest = { onDismiss() }) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = storyImages[currentIndex]),
+                        contentDescription = "Story Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+        }
+    }
+
+
+
+
 
 
     @Composable
@@ -267,50 +349,50 @@ class HomeActivity : ComponentActivity() {
                     .padding(innerPadding)
                     .fillMaxSize()
             ) {
-                // عرض باقي المحتويات هنا
+
                 item {
                     HeaderSection()
                 }
                 item {
                     StoriesSection()
                 }
-                    when {
-                        isLoading -> {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(innerPadding),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
+                when {
+                    isLoading -> {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
                             }
-
                         }
 
-                        error != null -> {
-                            item{
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(innerPadding),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(text = error!!)
-                                }
-                            }
-
-                        }
-
-                        else -> {
-
-                                items(posts) { post ->
-                                    RedditPostItem(post = post)
-                                }
-
-                        }
                     }
+
+                    error != null -> {
+                        item{
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = error!!)
+                            }
+                        }
+
+                    }
+
+                    else -> {
+
+                        items(posts) { post ->
+                            RedditPostItem(post = post)
+                        }
+
+                    }
+                }
 
 
 
