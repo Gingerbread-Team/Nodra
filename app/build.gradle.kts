@@ -71,12 +71,12 @@ dependencies {
     //swipe to refresh
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     //likeButton
-    implementation ("com.google.android.material:material:1.6.0")
+    implementation("com.google.android.material:material:1.6.0")
     ksp("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-runtime:2.7.1")
-
+//navigation
     implementation("androidx.navigation:navigation-compose:2.8.9")
-    implementation ("androidx.compose.material:material-icons-extended:1.7.8")// Acc icon
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")// Acc icon
 
     // Retrofit for networking
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
@@ -93,8 +93,19 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.3.1")
 
     implementation("androidx.compose.material:material-icons-extended")
-    implementation ("androidx.navigation:navigation-compose:2.7.5")
+    implementation("androidx.navigation:navigation-compose:2.7.5")
     //remember sys
-    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+    //Markdown
+    implementation("com.halilibo.compose-richtext:richtext-ui:0.16.0")
+    implementation("com.halilibo.compose-richtext:richtext-commonmark:0.16.0")
+    //
+    implementation ("androidx.media3:media3-exoplayer:1.0.0-beta01")
+    implementation ("androidx.media3:media3-ui:1.0.0-beta01")
+    //
+    implementation ("androidx.media3:media3-exoplayer:1.3.1")
+    implementation ("androidx.media3:media3-ui:1.3.1")
+
+
 
 }

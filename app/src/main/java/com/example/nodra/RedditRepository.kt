@@ -33,7 +33,7 @@ class RedditRepository {
         "https://www.reddit.com/r/car/.json"
     )
 
-    suspend fun fetchAndProcessPosts(): List<RedditPost> = withContext(Dispatchers.IO) {
+    suspend fun fetchAndProcessPosts(): List<RedditVid> = withContext(Dispatchers.IO) {
         val responses = subredditUrls.map { url ->
             async {
                 try {
@@ -52,10 +52,10 @@ class RedditRepository {
         }.awaitAll().flatten()
 
         responses.map { postData ->
-            RedditPost(
+            RedditVid(
                 title = postData.title.orEmpty(),
                 author = postData.author.orEmpty(),
-                subreddit = postData.subreddit.orEmpty(),
+
                 selftext = postData.selftext,
                 imageUrl = postData.preview?.images?.firstOrNull()?.source?.url?.safeUrlProcess() ?: postData.thumbnail?.takeIf { it.startsWith("http") }?.safeUrlProcess(),
                 videoUrl = postData.media?.redditVideo?.fallbackUrl?.safeUrlProcess()
@@ -63,7 +63,7 @@ class RedditRepository {
         }.shuffled()
     }
 
-    fun filterVideoPosts(posts: List<RedditPost>): List<RedditPost> {
+    fun filterVideoPosts(posts: List<RedditVid>): List<RedditVid> {
         return posts.filter { !it.videoUrl.isNullOrEmpty() }
     }
 

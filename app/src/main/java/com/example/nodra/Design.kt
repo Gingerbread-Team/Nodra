@@ -1,18 +1,18 @@
 package com.example.nodra
+import androidx.compose.runtime.Composable
+import com.halilibo.richtext.ui.RichText
+
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,9 +38,12 @@ import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil.request.CachePolicy
+import com.halilibo.richtext.markdown.Markdown
 
 @Composable
-fun RedditPostItem(post: RedditPost) {
+fun RedditPostItem(post: RedditVid) {
+    var showFullPost by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -91,8 +93,27 @@ fun RedditPostItem(post: RedditPost) {
                 Spacer(modifier = Modifier.height(6.dp))
             }
 
-            post.selftext?.takeIf { it.isNotBlank() }?.let {
-                Text(text = it, style = MaterialTheme.typography.bodyMedium)
+            // Truncate the selftext if needed
+            if (!post.selftext.isNullOrBlank()) {
+                val truncatedText = post.selftext!!.take(200) // Show first 200 characters
+                Text(
+                    text = if (showFullPost) post.selftext!! else "$truncatedText...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.clickable {
+                        // Toggle between full post and truncated version
+                        showFullPost = !showFullPost
+                    }
+                )
+                if (!showFullPost) {
+                    Text(
+                        text = "Read More",
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable {
+                            // Toggle between full post and truncated version
+                            showFullPost = !showFullPost
+                        }
+                    )
+                }
                 Spacer(modifier = Modifier.height(6.dp))
             }
 
@@ -205,4 +226,12 @@ fun SubredditVideo(url: String) {
             view.player = exoPlayer
         }
     )
+}
+@Composable
+fun MarkdownText(
+    content: String
+) {
+    RichText {
+        Markdown(content = content)
+    }
 }
