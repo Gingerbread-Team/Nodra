@@ -170,9 +170,45 @@ class HomeActivity : ComponentActivity() {
                 }
 
                 composable(BottomNavItem.Video.route) {
-                    val context = LocalContext.current
-                    LaunchedEffect(Unit) {
-                        context.startActivity(Intent(context, VideosActivity::class.java))
+                    val viewModel: RedditViewModel = viewModel()
+                    val posts by viewModel.videoPosts.collectAsState()
+                    val isLoading by viewModel.isLoading.collectAsState()
+                    val error by viewModel.error.collectAsState()
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+
+                        when {
+                            isLoading -> {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                }
+                            }
+
+                            error != null -> {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(text = error ?: "Unexpected Error")
+                                    }
+                                }
+                            }
+
+                            else -> {
+                                items(posts) { post ->
+                                    RedditPostItem(post = post)
+                                }
+                            }
+                        }
                     }
                 }
 

@@ -30,7 +30,8 @@ class RedditRepository {
         "https://www.reddit.com/r/LoveIsBlindOnNetflix/.json",
         "https://www.reddit.com/r/TwoXChromosomes/.json",
         "https://www.reddit.com/r/ChronicIllness/.json",
-        "https://www.reddit.com/r/car/.json"
+        "https://www.reddit.com/r/car/.json",
+        "https://www.reddit.com/r/NameThatSong/.json"
     )
 
     suspend fun fetchAndProcessPosts(): List<RedditVid> = withContext(Dispatchers.IO) {
@@ -57,7 +58,7 @@ class RedditRepository {
                 author = postData.author.orEmpty(),
 
                 selftext = postData.selftext,
-                imageUrl = postData.preview?.images?.firstOrNull()?.source?.url?.safeUrlProcess() ?: postData.thumbnail?.takeIf { it.startsWith("http") }?.safeUrlProcess(),
+                imageUrl = postData.preview?.images?.firstOrNull()?.source?.url?.safeUrlProcess(),
                 videoUrl = postData.media?.redditVideo?.fallbackUrl?.safeUrlProcess()
             )
         }.shuffled()

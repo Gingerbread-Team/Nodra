@@ -1,22 +1,21 @@
 package com.example.nodra
+
 import androidx.compose.runtime.Composable
 import com.halilibo.richtext.ui.RichText
-
-
-import android.annotation.SuppressLint
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.annotation.OptIn
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.automirrored.filled.Comment
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
@@ -35,14 +34,20 @@ import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil.request.CachePolicy
 import com.halilibo.richtext.markdown.Markdown
+import android.media.MediaMetadataRetriever
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun RedditPostItem(post: RedditVid) {
     var showFullPost by remember { mutableStateOf(false) }
+    var liked by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -51,14 +56,10 @@ fun RedditPostItem(post: RedditVid) {
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(10.dp)
-        ) {
-            // Header (Profile + Author + Time/More)
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+
+            // Header
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.baseline_account_circle_24),
                     contentDescription = "User Avatar",
@@ -69,69 +70,54 @@ fun RedditPostItem(post: RedditVid) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = post.author,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                    Text(
-                        text = "Just now", //
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
+                    Text(text = post.author, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text(text = "Just now", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 }
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "More Options"
-                )
+                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More Options")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Title or Selftext
+            // Title
             post.title.takeIf { it.isNotBlank() }?.let {
                 Text(text = it, style = MaterialTheme.typography.bodyLarge)
                 Spacer(modifier = Modifier.height(6.dp))
             }
 
-            // Truncate the selftext if needed
+            // Selftext
             if (!post.selftext.isNullOrBlank()) {
-                val truncatedText = post.selftext!!.take(200) // Show first 200 characters
-                Text(
-                    text = if (showFullPost) post.selftext!! else "$truncatedText...",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.clickable {
-                        // Toggle between full post and truncated version
-                        showFullPost = !showFullPost
-                    }
-                )
-                if (!showFullPost) {
+                val previewText = post.selftext!!.take(200)
+                val showText = if (showFullPost) post.selftext!! else "$previewText..."
+                Box(modifier = Modifier.clickable { showFullPost = !showFullPost }) {
+                    MarkdownText(content = showText)
+                }
+                if (!showFullPost && post.selftext!!.length > 200) {
                     Text(
                         text = "Read More",
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable {
-                            // Toggle between full post and truncated version
-                            showFullPost = !showFullPost
-                        }
+                        modifier = Modifier.clickable { showFullPost = true }
                     )
                 }
                 Spacer(modifier = Modifier.height(6.dp))
             }
+            if (post.videoUrl == null) {
+                // Image
+                post.imageUrl?.takeIf { it.isNotBlank() }?.let {
+                    SubredditImage(url = it)
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
 
-            // Image
-            post.imageUrl?.let { url ->
-                SubredditImage(url = url)
-                Spacer(modifier = Modifier.height(6.dp))
             }
 
             // Video
-            post.videoUrl?.let { url ->
-                SubredditVideo(url = url)
+            post.videoUrl?.takeIf { it.isNotBlank() }?.let {
+                SubredditVideo(url = it)
                 Spacer(modifier = Modifier.height(6.dp))
             }
 
-            Divider()
+            HorizontalDivider()
 
-            // Buttons Row
+            // Action Buttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -139,25 +125,39 @@ fun RedditPostItem(post: RedditVid) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                PostActionButton(icon = Icons.Default.ThumbUp, label = "Like")
-                PostActionButton(icon = Icons.Default.Comment, label = "Comment")
+                PostActionButton(
+                    icon = Icons.Default.ThumbUp,
+                    label = if (liked) "Liked" else "Like",
+                    tint = if (liked) MaterialTheme.colorScheme.primary else Color.Unspecified
+                ) {
+                    liked = !liked
+                }
+
+                PostActionButton(icon = Icons.AutoMirrored.Filled.Comment, label = "Comment")
                 PostActionButton(icon = Icons.Default.Share, label = "Share")
             }
         }
     }
 }
 
+
+
 @Composable
-fun PostActionButton(icon: ImageVector, label: String) {
+fun PostActionButton(
+    icon: ImageVector,
+    label: String,
+    tint: Color = Color.Unspecified,
+    onClick: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
-            .clickable { }
+            .clickable { onClick() }
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector = icon, contentDescription = label, modifier = Modifier.size(18.dp))
+        Icon(imageVector = icon, contentDescription = label, modifier = Modifier.size(18.dp), tint = tint)
         Spacer(modifier = Modifier.width(4.dp))
-        Text(text = label, style = MaterialTheme.typography.bodySmall)
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = tint)
     }
 }
 
@@ -198,10 +198,34 @@ fun SubredditImage(url: String) {
     }
 }
 
-@SuppressLint("OpaqueUnit")
+
+@OptIn(UnstableApi::class)
 @Composable
 fun SubredditVideo(url: String) {
     val context = LocalContext.current
+
+    // Function to get video dimensions
+    @Composable
+    fun getVideoHeight(url: String): Dp {
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(url)
+        val width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
+        val height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
+        retriever.release()
+
+        return if (width > 0 && height > 0) {
+            // Calculate dynamic height based on screen width or other logic
+            val aspectRatio = width.toFloat() / height.toFloat()
+            val screenWidth = LocalContext.current.resources.displayMetrics.widthPixels
+            val dynamicHeight = (screenWidth / aspectRatio).toInt().dp
+            dynamicHeight
+        } else {
+            300.dp // Default height if dimensions are not available
+        }
+    }
+
+    val videoHeight = getVideoHeight(url)
+
     val exoPlayer = remember(url) {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(MediaItem.fromUri(url))
@@ -218,15 +242,16 @@ fun SubredditVideo(url: String) {
         factory = {
             PlayerView(context).apply {
                 player = exoPlayer
-                layoutParams = android.view.ViewGroup.LayoutParams(MATCH_PARENT, 400)
+                layoutParams = android.view.ViewGroup.LayoutParams(MATCH_PARENT, videoHeight.value.toInt()) // Use dynamic height
                 useController = true
+                setShowBuffering(PlayerView.SHOW_BUFFERING_ALWAYS)
             }
         },
-        update = { view ->
-            view.player = exoPlayer
-        }
+        update = { view -> view.player = exoPlayer }
     )
 }
+
+
 @Composable
 fun MarkdownText(
     content: String

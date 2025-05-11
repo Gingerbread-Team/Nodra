@@ -55,7 +55,7 @@ class RedditViewModel : ViewModel() {
         }
     }
 
-    fun fetchVideoPosts() {
+    private fun fetchVideoPosts() {
         viewModelScope.launch {
             _isVideoLoading.value = true
             _videoError.value = null
@@ -70,60 +70,5 @@ class RedditViewModel : ViewModel() {
         }
     }
 }
-/*
-@OptIn(ExperimentalMaterial3Api::class)
 
-@Composable
-fun RedditFeedScreen(
-    modifier: Modifier = Modifier,
-    viewModel: RedditViewModel = viewModel()
-) {
-    val posts by viewModel.posts.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val error by viewModel.error.collectAsState()
-
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-
-        }
-    ) { paddingValues ->
-        when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            error != null -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = error!!)
-                }
-            }
-
-            else -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                ) {
-                    items(posts) { post ->
-                        RedditPostItem(post = post)
-                    }
-                }
-            }
-        }
-    }
-
- */
 
