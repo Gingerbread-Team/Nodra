@@ -12,7 +12,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.nodra"
+        applicationId = "com.example.nodrah_project"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
