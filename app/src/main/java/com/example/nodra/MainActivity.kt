@@ -23,6 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nodra.navigation.authNavGraph
 import com.example.nodra.repository.AuthRepository
+import com.example.nodra.screens.SplashScreen
 import com.example.nodra.ui.theme.AppTheme
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -41,7 +42,7 @@ class MainActivity : ComponentActivity() {
             AppTheme {
                 val navController = rememberNavController()
                 val startDestination = remember {
-                    if (authRepository.isUserLoggedIn()) "home" else "auth"
+                    if (authRepository.isUserLoggedIn()) "auth" else "auth"
                 }
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
@@ -57,6 +58,7 @@ class MainActivity : ComponentActivity() {
                         )
 
                         composable("home") {
+                            SplashScreen()
                             MainScreen()
                         }
                     }
