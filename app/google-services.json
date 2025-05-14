@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "77831393626",
+    "project_id": "nodra-f58e1",
+    "storage_bucket": "nodra-f58e1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:77831393626:android:b4234db9525b89a1972363",
+        "android_client_info": {
+          "package_name": "com.example.nodra"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "77831393626-65kp1bt41kv9fmle9hntii6mquk4vld0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nodra",
+            "certificate_hash": "b4bc7646ce7235e098b052bf1d34f557f1776dc8"
+          }
+        },
+        {
+          "client_id": "77831393626-3t78apu3aaipqpjisjopqjcg1doequuc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsPZDmXqzrDN_TGJMpW-8MpHvlNS_XMJw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "77831393626-3t78apu3aaipqpjisjopqjcg1doequuc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

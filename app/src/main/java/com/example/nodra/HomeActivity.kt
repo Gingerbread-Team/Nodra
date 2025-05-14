@@ -71,6 +71,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,7 +85,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 
-import com.example.nodra.ui.theme.NodraTheme
+import com.example.nodra.ui.theme.AppTheme
+import com.example.nodra.ui.theme.DyslexicFont
+import com.example.nodra.ui.theme.LocalAppColorScheme
 import kotlinx.coroutines.delay
 
 class HomeActivity : ComponentActivity() {
@@ -91,7 +95,7 @@ class HomeActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NodraTheme {
+            AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(modifier = Modifier.padding(innerPadding))
 
@@ -99,8 +103,7 @@ class HomeActivity : ComponentActivity() {
             }
         }
     }
-
-
+}
 
     @Composable
     fun BottomNavigationBar(navController: NavHostController) {
@@ -114,12 +117,22 @@ class HomeActivity : ComponentActivity() {
 
         val currentBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = currentBackStackEntry?.destination?.route
-
+        val colors = LocalAppColorScheme.current
+        var useCustomFont by remember { mutableStateOf(false) }
+        val currentFont = if (useCustomFont) DyslexicFont else FontFamily.Default
+        val context = LocalContext.current
+        var lineHeightVal by remember { mutableStateOf(24.0) }
+        var isContrast by remember { mutableStateOf(false) }
+        var isMonochromeTheme by remember { mutableStateOf(false) }
+        var fontSizeVal by remember { mutableStateOf(20.0) }
+        var letterSpacingVal by remember { mutableStateOf(0.0) }
+        var contentScaleVal by remember { mutableStateOf(400.0) }
         NavigationBar(containerColor = Color.White) {
             items.forEach { item ->
                 NavigationBarItem(
-                    icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
-                    label = { Text(item.title, fontSize = 10.sp) },
+                    icon = { Icon(imageVector = item.icon, contentDescription = item.title,tint = colors.onPrimary) },
+                    label = { Text(item.title, fontSize = 10.sp,style = TextStyle(color = colors.onPrimary),
+                        fontFamily = currentFont,) },
                     selected = currentRoute == item.route,
                     onClick = {
                         if (currentRoute != item.route) {
@@ -133,20 +146,14 @@ class HomeActivity : ComponentActivity() {
                         }
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFF1A2C50),
-                        unselectedIconColor = Color.Gray,
+                        selectedIconColor = colors.secondary,
+                        unselectedIconColor = colors.onPrimary,
                         indicatorColor = Color.Transparent
-                    )
+                    ),
                 )
             }
         }
     }
-
-
-
-
-
-
 
 
 
@@ -236,7 +243,7 @@ class HomeActivity : ComponentActivity() {
             MainScreen()
         }
     }
-}
+
 @Composable
 fun HomeScreen() {
     val viewModel: RedditViewModel = viewModel()
