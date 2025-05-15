@@ -295,22 +295,22 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Social Login Buttons
-                SocialLoginButton(
-                    text = "Continue With Google",
-                    icon = painterResource(id = R.drawable.google), // Replace with actual Google icon
-                    onClick = {
-                        val signInIntent = googleSignInClient.signInIntent
-                        launcher.launch(signInIntent)
-                    }
-                )
+//                SocialLoginButton(
+//                    text = "Continue With Google",
+//                    icon = painterResource(id = R.drawable.google), // Replace with actual Google icon
+//                    onClick = {
+//                        val signInIntent = googleSignInClient.signInIntent
+//                        launcher.launch(signInIntent)
+//                    }
+//                )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                SocialLoginButton(
-                    text = "Continue With Facebook",
-                    icon = painterResource(id = R.drawable.facebook), // Replace with actual Facebook icon
-                    onClick = onFacebookLogin
-                )
+//                SocialLoginButton(
+//                    text = "Continue With Facebook",
+//                    icon = painterResource(id = R.drawable.facebook), // Replace with actual Facebook icon
+//                    onClick = onFacebookLogin
+//                )
                 Spacer(modifier = Modifier.height(12.dp))
                 SocialLoginButton(
                     text = "Continue With Phone",

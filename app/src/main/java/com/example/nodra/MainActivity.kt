@@ -13,7 +13,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,6 +29,7 @@ import com.example.nodra.navigation.authNavGraph
 import com.example.nodra.repository.AuthRepository
 import com.example.nodra.screens.SplashScreen
 import com.example.nodra.ui.theme.AppTheme
+import com.example.nodrah_project.AccessibilitySettings
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
@@ -39,10 +44,20 @@ class MainActivity : ComponentActivity() {
         Log.d("FirebaseCheck", "Current user: ${auth.currentUser?.email ?: "null"}")
 
         setContent {
+            val talkAndTypeParser by lazy {
+                TalkAndType(application)
+            }
+            val accessibilitySettingsManager =
+                (application as MyApplication).accessibilitySettingsManager
+            val currentSettings by accessibilitySettingsManager.accessibilitySettingsFlow.collectAsState(
+                initial = AccessibilitySettings()
+            )
+            var selectedTab by remember { mutableStateOf(0) } // This state is for your bottom nav bar if you have one
+
             AppTheme {
                 val navController = rememberNavController()
                 val startDestination = remember {
-                    if (authRepository.isUserLoggedIn()) "auth" else "auth"
+                    if (authRepository.isUserLoggedIn()) "home" else "auth"
                 }
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
@@ -59,10 +74,10 @@ class MainActivity : ComponentActivity() {
 
                         composable("home") {
                             SplashScreen()
-                            MainScreen()
+                            MainScreen(currentSettings =currentSettings, talkAndTypeParser = talkAndTypeParser )
                         }
                     }
-//                    Nav(modifier = Modifier.padding(innerPadding))
+                    Nav(modifier = Modifier.padding(innerPadding))
                 }
             }
         }

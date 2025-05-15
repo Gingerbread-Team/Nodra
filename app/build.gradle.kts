@@ -100,12 +100,17 @@ dependencies {
     //remember sys
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
     //Markdown
-    implementation("com.halilibo.compose-richtext:richtext-ui:0.16.0")
-    implementation("com.halilibo.compose-richtext:richtext-commonmark:0.16.0")
+    implementation("com.halilibo.compose-richtext:richtext-ui:0.17.0")
+    implementation("com.halilibo.compose-richtext:richtext-markdown:0.17.0")
     //
     implementation ("androidx.media3:media3-exoplayer:1.0.0-beta01")
     implementation ("androidx.media3:media3-ui:1.0.0-beta01")
 
+//SharedPreferences
+
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation ("com.google.code.gson:gson:2.13.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
 
 
