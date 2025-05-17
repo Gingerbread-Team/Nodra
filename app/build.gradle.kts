@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.effect)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -99,10 +100,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.5")
     //remember sys
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
-    //Markdown
-    implementation("com.halilibo.compose-richtext:richtext-ui:0.17.0")
-    implementation("com.halilibo.compose-richtext:richtext-markdown:0.17.0")
-    //
+
+
     implementation ("androidx.media3:media3-exoplayer:1.0.0-beta01")
     implementation ("androidx.media3:media3-ui:1.0.0-beta01")
 

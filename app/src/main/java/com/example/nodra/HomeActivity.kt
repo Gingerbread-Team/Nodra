@@ -167,11 +167,9 @@ fun BottomNavigationBar(
                 label = {
                     Text(
                         item.title,
-                        fontSize = currentSettings.fontSize.sp,
                         color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
                         fontFamily = currentFont,
-                        lineHeight = currentSettings.lineHeight.sp,
-                        letterSpacing = currentSettings.letterSpacing.sp
+
                     )
                 },
                 selected = currentRoute == item.route,
@@ -264,7 +262,7 @@ fun MainScreen(
                                     ) {
                                         Text(
                                             text = error ?: "Unexpected Error",
-                                           color =  if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
+                                            color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
                                         )
                                     }
                                 }
@@ -341,8 +339,10 @@ fun HomeScreen(currentSettings: AccessibilitySettings) {
                             .background(colors.background),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = error ?: "Unexpected Error",
-                            color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,)
+                        Text(
+                            text = error ?: "Unexpected Error",
+                            color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
+                        )
                     }
                 }
             }
@@ -423,7 +423,7 @@ fun HeaderSection(currentSettings: AccessibilitySettings) {
             Text(
                 text = "Start your Journey...",
                 fontSize = currentSettings.fontSize.sp,
-                color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
+                color =  colors.onPrimary,
                 fontFamily = currentFont,
                 lineHeight = currentSettings.lineHeight.sp,
                 letterSpacing = currentSettings.letterSpacing.sp
@@ -473,7 +473,7 @@ fun StoriesSection(currentSettings: AccessibilitySettings) {
                 AddStoryCard()
             } else {
                 // لازم نستخدم index - 1 علشان actualStories مبتحسبش null
-                StoryImageCard(imageRes = item) {
+                StoryImageCard(currentSettings=currentSettings, imageRes = item) {
                     startIndex = index - 1 // اطرح 1 علشان null أول عنصر
                     showStories = true
                 }
@@ -483,7 +483,10 @@ fun StoriesSection(currentSettings: AccessibilitySettings) {
 }
 
 @Composable
-fun StoryImageCard(@DrawableRes imageRes: Int, onClick: () -> Unit) {
+fun StoryImageCard(
+    currentSettings: AccessibilitySettings,
+    @DrawableRes imageRes: Int, onClick: () -> Unit,
+) {
     Image(
         painter = painterResource(id = imageRes),
         contentDescription = "Story Image",
@@ -491,7 +494,13 @@ fun StoryImageCard(@DrawableRes imageRes: Int, onClick: () -> Unit) {
             .size(width = 120.dp, height = 180.dp)
             .clip(RoundedCornerShape(16.dp))
             .clickable { onClick() },
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.Crop,
+        colorFilter = if (currentSettings.isMonochrome) ColorFilter.colorMatrix(
+            ColorMatrix().apply {
+                setToSaturation(
+                    0f
+                )
+            }) else null,
     )
 }
 

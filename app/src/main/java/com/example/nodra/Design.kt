@@ -1,7 +1,6 @@
 package com.example.nodra
 
 import androidx.compose.runtime.Composable
-import com.halilibo.richtext.ui.RichText
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.OptIn
 import androidx.compose.foundation.clickable
@@ -39,14 +38,20 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil.request.CachePolicy
 import android.media.MediaMetadataRetriever
+import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.ColorMatrixColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.media3.effect.RgbFilter
 import com.example.nodra.ui.theme.AppTheme
 import com.example.nodra.ui.theme.DyslexicFont
 import com.example.nodra.ui.theme.LocalAppColorScheme
@@ -87,7 +92,7 @@ fun RedditPostItem(post: RedditVid, currentSettings: AccessibilitySettings) {
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape),
-                        tint = Color.Gray
+                        tint = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Column(modifier = Modifier.weight(1f)) {
@@ -110,7 +115,9 @@ fun RedditPostItem(post: RedditVid, currentSettings: AccessibilitySettings) {
                             letterSpacing = currentSettings.letterSpacing.sp
                         )
                     }
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More Options")
+                    Icon(imageVector = Icons.Default.MoreVert,
+                        contentDescription = "More Options",
+                        tint = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -133,7 +140,7 @@ fun RedditPostItem(post: RedditVid, currentSettings: AccessibilitySettings) {
                     val previewText = post.selftext!!.take(200)
                     val showText = if (showFullPost) post.selftext!! else "$previewText..."
                     Box(modifier = Modifier.clickable { showFullPost = !showFullPost }) {
-                        MarkdownText(content = showText, style = TextStyle(
+                        Text(text = showText, style = TextStyle(
                             fontSize = currentSettings.fontSize.sp,
                             color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
                             fontFamily = currentFont,
@@ -157,7 +164,7 @@ fun RedditPostItem(post: RedditVid, currentSettings: AccessibilitySettings) {
                 if (post.videoUrl == null) {
                     // Image
                     post.imageUrl?.takeIf { it.isNotBlank() }?.let {
-                        SubredditImage(url = it)
+                        SubredditImage(url = it,currentSettings)
                         Spacer(modifier = Modifier.height(6.dp))
                     }
 
@@ -218,7 +225,7 @@ currentSettings: AccessibilitySettings
             imageVector = icon,
             contentDescription = label,
             modifier = Modifier.size(18.dp),
-            tint = tint
+            tint = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = label,
@@ -234,10 +241,11 @@ currentSettings: AccessibilitySettings
 
 
 @Composable
-fun SubredditImage(url: String) {
+fun SubredditImage(url: String,currentSettings: AccessibilitySettings) {
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val colors = LocalAppColorScheme.current
 
     Box(modifier = Modifier.fillMaxWidth()) {
         AsyncImage(
@@ -253,14 +261,22 @@ fun SubredditImage(url: String) {
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
                 .fillMaxWidth()
+                .size(currentSettings.contentScale.dp)
                 .heightIn(min = 100.dp),
             onLoading = { loading = true },
             onSuccess = { loading = false },
+            colorFilter = if (currentSettings.isMonochrome) ColorFilter.colorMatrix(
+                ColorMatrix().apply {
+                    setToSaturation(
+                        0f
+                    )
+                }) else null,
             onError = { error = true; loading = false }
         )
 
         if (loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center),
+                color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary)
         }
 
         if (error) {
@@ -268,7 +284,6 @@ fun SubredditImage(url: String) {
         }
     }
 }
-
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -312,7 +327,7 @@ fun SubredditVideo(url: String) {
     }
 
     AndroidView(
-        factory = {
+        factory = { context ->
             PlayerView(context).apply {
                 player = exoPlayer
                 layoutParams = android.view.ViewGroup.LayoutParams(
@@ -325,15 +340,4 @@ fun SubredditVideo(url: String) {
         },
         update = { view -> view.player = exoPlayer }
     )
-}
-
-
-@Composable
-fun MarkdownText(
-    content: String,
-    style: TextStyle = LocalTextStyle.current
-) {
-    RichText {
-        Markdown(content = content)
-    }
 }

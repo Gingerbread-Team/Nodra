@@ -16,6 +16,7 @@ roomCompiler = "2.7.1"
 swiperefreshlayout = "1.1.0"
 media3Exoplayer = "1.6.1"
 media3Ui = "1.6.1"
+media3Effect = "1.7.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,6 +42,7 @@ material = { module = "com.google.android.material:material", version.ref = "mat
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3Exoplayer" }
 androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3Ui" }
+androidx-media3-effect = { group = "androidx.media3", name = "media3-effect", version.ref = "media3Effect" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

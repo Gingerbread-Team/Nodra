@@ -73,31 +73,15 @@ class MainActivity : ComponentActivity() {
                         )
 
                         composable("home") {
-                            SplashScreen()
+//                            SplashScreen()
                             MainScreen(currentSettings =currentSettings, talkAndTypeParser = talkAndTypeParser )
                         }
                     }
-                    Nav(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
     }
 
 }
-
-@Composable
-fun Nav(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-
-    Button(
-        onClick =
-        {
-            val intent = Intent(context, HomeActivity::class.java)
-            context.startActivity(intent)
-        }, modifier = Modifier.padding(top = 81.dp)) {Text(text = "start")
-
-    }
-}
-
 
 

@@ -297,22 +297,17 @@ class AccessibilityActivity : ComponentActivity() {
                         fontFamily = currentFont
                     )
 
-                    val imageModifier = Modifier
-                        .size(currentSettings.contentScale.dp)
-                        .border(BorderStroke(1.dp, Color.Black))
-                        .background(Color.White)
-                    Image(
-                        painter = painterResource(id = R.drawable.demopic),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = imageModifier,
-                        colorFilter = if (currentSettings.isMonochrome) ColorFilter.colorMatrix(
-                            ColorMatrix().apply {
-                                setToSaturation(
-                                    0f
-                                )
-                            }) else null
-                    )
+//                    val imageModifier = Modifier
+//                        .size(currentSettings.contentScale.dp)
+//                        .border(BorderStroke(1.dp, Color.Black))
+//                        .background(Color.White)
+//                    Image(
+//                        painter = painterResource(id = R.drawable.demopic),
+//                        contentDescription = null,
+//                        contentScale = ContentScale.Fit,
+//                        modifier = imageModifier,
+//
+//                    )
                 }
             }
         }
